@@ -8,7 +8,7 @@ export default class PostController {
             await newPost.save();
             res.status(201).json(newPost);
         } catch (error) {
-            res.status(500).json({ message: "Server Error" });
+            res.status(500).json({ message: error.message || "Error in createPost" });
         }
     }
 
@@ -16,6 +16,18 @@ export default class PostController {
         try {
             const posts = await Post.find().sort({ createdAt: -1 }).populate("author", "name");
             res.json(posts);
+        } catch (error) {
+            res.status(500).json({ message: "Server Error" });
+        }
+    }
+
+    async getPostById(req, res) {
+        try {
+            const post = await Post.findById(req.params.id).populate("author", "name");
+            if (!post) {
+                return res.status(404).json({ message: "Post not found" });
+            }
+            res.json(post);
         } catch (error) {
             res.status(500).json({ message: "Server Error" });
         }
